@@ -1,41 +1,52 @@
 import { galleryItems } from './gallery-items.js'
 // Change code below this line
 
-console.log(galleryItems)
+const galleryContainer = document.querySelector('.gallery')
+const galleryMarkup = makeGalleryMarkup(galleryItems)
+galleryContainer.insertAdjacentHTML('beforeend', galleryMarkup)
+galleryContainer.addEventListener('click', openInstanceModal)
 
-const gallery = document.querySelector('.gallery')
-const items = []
+function makeGalleryMarkup(pictures) {
+  return pictures
+    .map(({ preview, original, description }) => {
+      return `<div class="gallery__item">
+  <a class="gallery__link" href="${original}">
+    <img
+      class="gallery__image"
+      src="${preview}"
+      data-source="${original}"
+      alt="${description}"
+    />
+  </a>
+</div>`
+    })
+    .join('')
+}
 
-galleryItems.forEach((element) => {
-  const galleryItem = document.createElement('div')
-  galleryItem.className = 'gallery__item'
-  const galleryLink = document.createElement('a')
-  galleryLink.className = 'gallery__link'
-  galleryLink.href = element.original
-  const galleryImage = document.createElement('img')
-  galleryImage.className = 'gallery__image'
-  galleryImage.src = element.preview
-  galleryImage.setAttribute('data-source', element.original)
-  galleryImage.alt = element.description
+const instance = basicLightbox.create(
+  `
+      <img src="" />
+  `,
+  {
+    onShow: () => {
+      console.log('add listener ')
+      document.addEventListener('keydown', escBtnHandler)
+    },
+    onClose: () => {
+      console.log('remove listener ')
+      document.removeEventListener('keydown', escBtnHandler)
+    },
+  }
+)
 
-  galleryItem.append(galleryLink)
-  galleryLink.append(galleryImage)
-  items.push(galleryItem)
-})
+function escBtnHandler(e) {
+  if (e.code === 'Escape') {
+    instance.close()
+  }
+}
 
-gallery.append(...items)
-
-gallery.addEventListener('click', (e) => {
+function openInstanceModal(e) {
   e.preventDefault()
-  if (e.target.nodeName !== 'IMG') return
-  const selectedImage = e.target.getAttribute('data-source')
-
-  const modal = basicLightbox.create(`<img src="${selectedImage}">`)
-
-  modal.show()
-
-  gallery.addEventListener('keydown', (e) => {
-    if (e.key !== 'Escape') return
-    modal.close()
-  })
-})
+  instance.element().querySelector('img').src = e.target.dataset.source
+  instance.show()
+}
