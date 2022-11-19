@@ -30,13 +30,12 @@ gallery.addEventListener('click', (e) => {
   if (e.target.nodeName !== 'IMG') return
   const selectedImage = e.target.getAttribute('data-source')
 
-  const instance = basicLightbox.create(`<img src="${selectedImage}">`)
+  const modal = basicLightbox.create(`<img src="${selectedImage}">`)
 
-  instance.show()
+  modal.show()
 
   gallery.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      instance.close()
-    }
+    if (e.key !== 'Escape') return
+    modal.close()
   })
 })
